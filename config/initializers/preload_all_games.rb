@@ -1,0 +1,1 @@
+$proxy = AllGames.call

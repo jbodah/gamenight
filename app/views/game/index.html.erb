@@ -1,0 +1,38 @@
+(Found <%= @count %> games; filter the results with query parameters <a href="?sort=bgg_rank&best_with=[4,5]">example</a>)
+
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">BGG Rank</th>
+      <th scope="col">Mean Player Rating</th>
+      <th scope="col">Game</th>
+      <th scope="col">Owners</th>
+      <th scope="col">Want to Play</th>
+      <th scope="col">Rating Breakdown</th>
+      <th scope="col">Recommended With</th>
+      <th scope="col">Best With</th>
+      <th scope="col">Weight</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% @games.each do |game| %>
+    <tr>
+      <td><%= game.bgg_rank %></td>
+      <td><%= game.mean_player_rating %></td>
+      <td>
+        <img src="<%= game.game.thumbnail.text.html_safe %>" />
+        <br/>
+        <%= game.name %>
+      </td>
+      <td><%= game.owners %></td>
+      <td><%= game.want_to_players %></td>
+      <td><%= game.player_rating_summary %></td>
+      <td><%= game.recommended_with %></td>
+      <td><%= game.best_with %></td>
+      <td><%= game.weight.round(2) %></td>
+    </tr>
+    <% end %>
+  </tbody>
+</table>
+
+(By default output is currently limited to first 100 results. The "limit" query parameter can be provided to override this.)
