@@ -1,36 +1,53 @@
 class GameController < ApplicationController
-  def index
+  before_action do
     @games = $proxy.owned.not(:solo_only)
     @total = @games.count
+  end
+
+  def index
     @games = apply_params(@games, params)
     @games = sort(@games, params)
     @games = limit(@games, params)
   end
 
   def random
-    @games = $proxy.owned.not(:solo_only)
-    @total = @games.count
-    samples = []
-    users = %w(hiimjosh iadena yourwhiteshadow Falcifer666 adamabsurd)
-    users = (users * 2).shuffle
-    [4, 5].shuffle.each do |n|
-      user = users.shift
-      samples += @games.recommended_with(n).filler.owned_by(user).to_a.sample(1)
+    if params["permalink"]
+      ids = Base64.decode64(params["permalink"]).split(',')
+      games_by_id = @games.select { |g| g.id.in? ids }.index_by(&:id)
+      @games = ids.map { |id| games_by_id[id] }
+      render :index
+    else
+      @games = $proxy.owned.not(:solo_only)
+      @total = @games.count
+      samples = []
+      users = %w(hiimjosh iadena yourwhiteshadow Falcifer666 adamabsurd)
+      users = (users * 2).shuffle
+      [4, 5].shuffle.each do |n|
+        user = users.shift
+        samples += @games.recommended_with(n).filler.owned_by(user).to_a.sample(1)
 
-      user = users.shift
-      samples += @games.recommended_with(n).owned_by(user).select { |g| g.weight > 2 && g.weight < 3 }.sample(1)
+        user = users.shift
+        samples += @games.recommended_with(n).owned_by(user).select { |g| g.weight > 2 && g.weight < 3 }.sample(1)
 
-      user = users.shift
-      samples += @games.recommended_with(n).owned_by(user).select { |g| g.weight > 3 }.sample(1)
+        user = users.shift
+        samples += @games.recommended_with(n).owned_by(user).select { |g| g.weight > 3 }.sample(1)
+      end
+      @games = samples.sort_by { |g| -g.weight }
+      ids = @games.map(&:id).join(',')
+      redirect_to random_path(permalink: Base64.encode64(ids))
     end
-    @games = samples.sort_by { |g| -g.weight }
-    render :index
   end
 
   def most_want_to_play
-    @games = $proxy.owned.not(:solo_only)
-    @total = @games.count
-    @games = @games.sort_by { |g| -g.want_to_players.count }
+    gen_filter { |games| games.sort_by { |g| -(g.want_to_players.count) }}
+  end
+
+  def already_know
+    gen_filter { |games| games.sort_by { |g| -(g.raters.count) }}
+  end
+
+  def gen_filter
+    @games = yield @games
     @games = limit(@games, params)
     render :index
   end
