@@ -27,6 +27,14 @@ class GameController < ApplicationController
     render :index
   end
 
+  def most_want_to_play
+    @games = $proxy.owned.not(:solo_only)
+    @total = @games.count
+    @games = @games.sort_by { |g| -g.want_to_players.count }
+    @games = limit(@games, params)
+    render :index
+  end
+
   def limit(games, params)
     limit = params["limit"] || 100
     games.first(limit)
