@@ -20,7 +20,7 @@ class Object
   end
 end
 
-module BGG
+module Bgg
   class Collection
     attr_accessor :games
     attr_reader :owner
@@ -390,20 +390,15 @@ end
 
 users = %w(hiimjosh iadena yourwhiteshadow Falcifer666 adamabsurd)
 
-download_collections(users)
-
 collections = load_collections
 collections = collections.map do |owner, xml|
-  collection = BGG::Collection.new(owner)
+  collection = Bgg::Collection.new(owner)
   doc = Nokogiri::XML(xml) do |c|
     c.options = Nokogiri::XML::ParseOptions::NOBLANKS
   end
-  collection.games = BGG::Parser.parse(doc.children[0])
+  collection.games = Bgg::Parser.parse(doc.children[0])
   collection
 end
-
-download_games(collections)
-exit
 
 ownerships_by_game_id = {}
 collections.each do |c|
@@ -420,7 +415,7 @@ loaded_games.each do |xml|
     c.options = Nokogiri::XML::ParseOptions::NOBLANKS
   end
   doc.children[0].children.map do |game|
-    game2 = BGG::Parser.parse(game)
+    game2 = Bgg::Parser.parse(game)
     # Owner not attending
     next if ownerships_by_game_id[game2.id].nil?
     games << Game.new(game2, ownerships_by_game_id.fetch(game2.id))
@@ -428,4 +423,5 @@ loaded_games.each do |xml|
 end
 games.reject! { |g| g.type == "boardgameexpansion" }
 
-filter = GameProxy.new(games)
+filter = GameProxy.new(games).owned
+File.write('filter.out', Marshal.dump(filter))
