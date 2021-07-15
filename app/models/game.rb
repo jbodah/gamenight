@@ -90,7 +90,7 @@ class Game
     @ownerships.select(&:wanttoplay).map(&:owner).uniq
   end
 
-  def mean_player_rating
+  def median_player_rating
     return -1 if player_ratings.none?
 
     ratings = player_ratings

@@ -2,14 +2,22 @@
   (Found <%= @count %> games; filter the results with query parameters <a href="?sort=bgg_rank&best_with=[4,5]">example</a>)
 </p>
 <p>
-Quick Links: <%= link_to "Random", random_path %> <%= link_to %(Most "Want to Plays"), most_want_to_play_path %> <%= link_to %(Games We Already Know), already_know_path %>
+Quick Links:
+  <%= link_to "Random", random_path %>
+  <%= link_to %(Most "Want to Plays"), most_want_to_play_path %>
+  <%= link_to %(Games We Already Know), already_know_path %>
+  <%= link_to %(Best With 4), root_path(best_with: 4) %>
+  <%= link_to %(Best With 5), root_path(best_with: 5) %>
+  <%= link_to %(Recommended With 4), root_path(recommended_with: 4) %>
+  <%= link_to %(Recommended With 5), root_path(recommended_with: 5) %>
+  <%= link_to %(Fillers), root_path(playingtime: "lte30") %>
 </p>
 
 <table class="table">
   <thead>
     <tr>
       <th scope="col">BGG Rank</th>
-      <th scope="col">Mean Player Rating</th>
+      <th scope="col">Median Player Rating</th>
       <th scope="col">Game</th>
       <th scope="col">Owners</th>
       <th scope="col">Want to Play</th>
@@ -23,7 +31,7 @@ Quick Links: <%= link_to "Random", random_path %> <%= link_to %(Most "Want to Pl
     <% @games.each do |game| %>
     <tr>
       <td><%= game.bgg_rank %></td>
-      <td><%= game.mean_player_rating %></td>
+      <td><%= game.median_player_rating %></td>
       <td>
         <img src="<%= game.game.thumbnail.text.html_safe %>" />
         <br/>

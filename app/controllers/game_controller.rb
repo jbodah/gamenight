@@ -72,31 +72,27 @@ class GameController < ApplicationController
       end
     end
 
-    games.sort_by { |x| -x.mean_player_rating }
+    games.sort_by { |x| -x.median_player_rating }
   end
 
-  def valid_filter?(k)
-    k.in? %w(
+  def apply_params(games, params)
+    legacy = %w(
       best_with
       bgg_rank
-      mean_player_rating
+      median_player_rating
       owners
       player_rating_summary
       recommended_with
       want_to_players
       weight
+      playingtime
     )
-  end
-
-  def apply_params(games, params)
     acc = games
     params.each do |k, v|
-      if valid_filter?(k)
+      case k
+      when *legacy
         v = maybe_upcast_data_type(v)
-        puts acc.count
         acc = acc.send(k, v)
-        puts acc.count
-        acc
       else
         acc = acc
       end
@@ -108,8 +104,12 @@ class GameController < ApplicationController
     case v
     when /^\d+$/
       v.to_i
+    when /^[\d\.]+$/
+      v.to_f
     when /^\[[\d,]+\]$/
       v[1..-2].split(',').map(&:to_i)
+    when /^\[[\d\.,]+\]$/
+      v[1..-2].split(',').map(&:to_f)
     end
   end
 end
