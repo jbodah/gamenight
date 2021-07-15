@@ -97,7 +97,7 @@ class Game
     if ratings.size % 2 == 0
       ((ratings[ratings.size/2-1] + ratings[ratings.size/2]) / 2.0).round(1)
     else
-      (ratings[ratings.size/2.0]).round(1)
+      (ratings[ratings.size/2.0]*1.0).round(1)
     end
   end
 
