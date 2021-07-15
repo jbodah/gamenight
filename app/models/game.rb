@@ -106,7 +106,7 @@ class Game
   end
 
   def player_ratings
-    @ownerships.map(&:rating).compact.map(&:to_i).reject { |x| x == 0 }
+    @ownerships.map(&:rating).compact.map(&:to_i).reject { |x| x == 0 }.sort
   end
 
   def player_rating_summary
