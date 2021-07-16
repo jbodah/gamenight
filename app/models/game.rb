@@ -39,7 +39,7 @@ class Game
   end
 
   def want_to_players
-    (likers + want_to_learners).uniq
+    ((owners - raters) + likers + want_to_learners).uniq
   end
 
   def want_to_learners
