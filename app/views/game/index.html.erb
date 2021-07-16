@@ -1,16 +1,19 @@
 <p>
-  (Found <%= @count %> games; filter the results with query parameters <a href="?sort=bgg_rank&best_with=[4,5]">example</a>)
+(Found <%= @count %> out of <%= @total %> games; filter the results with query parameters <a href="?sort=bgg_rank&best_with=[4,5]">example</a> <a href="#ref">reference</a>)
 </p>
+
 <p>
 Quick Links:
   <%= link_to "Random", random_path %>
-  <%= link_to %(Most "Want to Plays"), most_want_to_play_path %>
-  <%= link_to %(Games We Already Know), already_know_path %>
+  <%= link_to %(Most "Want to Plays"), root_path(num_want_to_players: "gt0", sort: "-want_to_players") %>
+  <%= link_to %(Games We Already Know), root_path(num_raters: "gt0", recommended_with: "[4,5]", sort: "-median_player_rating,-num_raters") %>
   <%= link_to %(Best With 4), root_path(best_with: 4) %>
   <%= link_to %(Best With 5), root_path(best_with: 5) %>
   <%= link_to %(Recommended With 4), root_path(recommended_with: 4) %>
   <%= link_to %(Recommended With 5), root_path(recommended_with: 5) %>
-  <%= link_to %(Fillers), root_path(playingtime: "lte30") %>
+  <%= link_to %(Fillers), root_path(playingtime: "lte30", recommended_with: "[4,5]", sort: "random") %>
+  <%= link_to %(Obscure), root_path(bgg_rank: "gte500", sort: "-median_player_rating,-want_to_players") %>
+  <%= link_to %(Unplayed), root_path(num_raters: 0, recommended_with: "[4,5]", sort: "-want_to_players") %>
 </p>
 
 <table class="table">
@@ -22,6 +25,7 @@ Quick Links:
       <th scope="col">Owners</th>
       <th scope="col">Want to Play</th>
       <th scope="col">Rating Breakdown</th>
+      <th scope="col">Mechanics</th>
       <th scope="col">Recommended With</th>
       <th scope="col">Best With</th>
       <th scope="col">Weight</th>
@@ -29,23 +33,75 @@ Quick Links:
   </thead>
   <tbody>
     <% @games.each do |game| %>
-    <tr>
-      <td><%= game.bgg_rank %></td>
-      <td><%= game.median_player_rating %></td>
-      <td>
-        <img src="<%= game.game.thumbnail.text.html_safe %>" />
-        <br/>
-        <%= game.name %>
-      </td>
-      <td><%= game.owners %></td>
-      <td><%= game.want_to_players %></td>
-      <td><%= game.player_rating_summary %></td>
-      <td><%= game.recommended_with %></td>
-      <td><%= game.best_with %></td>
-      <td><%= game.weight.round(2) %></td>
-    </tr>
+      <tr>
+        <td><%= game.bgg_rank %></td>
+        <td><%= game.median_player_rating %></td>
+        <td>
+          <a href="<%= game.href %>">
+            <img src="<%= game.game.thumbnail.text.html_safe %>" />
+          </a>
+          <br/>
+          <%= game.name %>
+        </td>
+        <td><%= game.owners %></td>
+        <td><%= game.want_to_players %></td>
+        <td><%= game.player_rating_summary %></td>
+        <td>
+          <ul>
+            <% game.mechanics.each do |mechanic| %>
+              <li><%= mechanic %></li>
+            <% end %>
+          </ul>
+        </td>
+        <td><%= game.recommended_with %></td>
+        <td><%= game.best_with %></td>
+        <td><%= game.weight.round(2) %></td>
+      </tr>
     <% end %>
   </tbody>
 </table>
 
-(By default output is currently limited to first 100 results. The "limit" query parameter can be provided to override this.)
+<div id="ref">
+  <p>simple params: <%= @simple_params.inspect %></p>
+  <p>collection params: <%= @collection_params.inspect %></p>
+</div>
+
+<div>
+  <h3>Mechanics Ranking</h3>
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">Mechanic</th>
+        <th scope="col">Ranking</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @mechanics_ranking.sort_by { |_, v| -v }.each do |mechanic, ranking| %>
+        <tr>
+          <td><%= link_to mechanic, root_path(mechanics: "[#{mechanic}]", sort: "-median_player_rating,-want_to_players") %></td>
+          <td><%= ranking.round(1) %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+<div>
+  <h3>Mechanics Played</h3>
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">Mechanic</th>
+        <th scope="col">Num Plays</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @mechanics_played.sort_by { |_, v| v }.each do |mechanic, plays| %>
+        <tr>
+          <td><%= link_to mechanic, root_path(mechanics: "[#{mechanic}]", sort: "-median_player_rating,-want_to_players") %></td>
+          <td><%= plays %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

@@ -10,20 +10,20 @@ class Game
     @game.id
   end
 
-  def prev_owned?
-    prev_owners.any?
-  end
+  %i(prev_own own).each do |sym|
+    class_eval <<~EOF
+      def #{sym}ed?
+        #{sym}ers.any?
+      end
 
-  def prev_owned_by?(user)
-    prev_owners.any? { |u| u == user }
-  end
+      def #{sym}ed_by?(user)
+        #{sym}ers.any? { |u| u == user }
+      end
 
-  def owned?
-    owners.any?
-  end
-
-  def owned_by?(user)
-    owners.any? { |u| u == user }
+      def #{sym}ers
+        @ownerships.select(&:own).map(&:#{sym}er).uniq
+      end
+    EOF
   end
 
   def want_to_play?
@@ -34,60 +34,44 @@ class Game
     want_to_players.any? { |u| u == user }
   end
 
-  def liked_by_group?
-    likers.count > 1
+  def want_to_players
+    @ownerships.select(&:wanttoplay).map(&:owner).uniq
   end
 
-  def liked_by_someone?
-    likers.any?
-  end
+  {like: ">= 7", love: ">= 8", dislike: "<= 6", hate: "<= 5"}.each do |sym, clause|
+    class_eval <<~EOF
+      def #{sym}rs
+        player_rating_summary.select { |_, v| v #{clause} }.keys
+      end
 
-  def likers
-    player_rating_summary.select { |_, v| v >= 7 }.keys
-  end
+      def #{sym}d_by_group?
+        num_#{sym}rs > 1
+      end
 
-  def loved_by_group?
-    lovers.count > 1
-  end
+      def #{sym}d_by_someone?
+        num_#{sym}rs >= 1
+      end
 
-  def loved_by_someone?
-    lovers.any?
-  end
-
-  def lovers
-    player_rating_summary.select { |_, v| v >= 8 }.keys
-  end
-
-  def disliked_by_someone?
-    dislikers.any?
-  end
-
-  def dislikers
-    player_rating_summary.select { |_, v| v <= 6 }.keys
-  end
-
-  def hated_by_someone?
-    haters.any?
-  end
-
-  def haters
-    player_rating_summary.select { |_, v| v <= 5 }.keys
+      def num_#{sym}rs
+        #{sym}rs.size
+      end
+    EOF
   end
 
   def raters
     player_rating_summary.keys.uniq
   end
 
-  def prev_owners
-    @ownerships.select(&:prevowned).map(&:owner).uniq
+  def num_raters
+    raters.size
   end
 
-  def owners
-    @ownerships.select(&:own).map(&:owner).uniq
+  def rated?
+    num_raters > 0
   end
 
-  def want_to_players
-    @ownerships.select(&:wanttoplay).map(&:owner).uniq
+  def href
+    "https://boardgamegeek.com/thing/#{id}"
   end
 
   def median_player_rating
@@ -106,7 +90,7 @@ class Game
   end
 
   def player_ratings
-    @ownerships.map(&:rating).compact.map(&:to_i).reject { |x| x == 0 }.sort
+    @ownerships.map(&:rating).compact.map(&:to_f).reject { |x| x == 0 }.sort
   end
 
   def player_rating_summary
@@ -119,6 +103,33 @@ class Game
 
   def name
     @game.primary_name.value
+  end
+
+  def mechanics
+    @game.mechanics.map(&:downcase)
+  end
+
+  %i(
+    best_with
+    recommended_with
+    dislikers
+    haters
+    likers
+    lovers
+    mechanics
+    owners
+    raters
+    want_to_players
+  ).each do |sym|
+    class_eval <<~EOF
+      def #{sym}?(v)
+        if v.respond_to?(:each)
+          v.any? { |v2| #{sym}.include?(v2) }
+        else
+          #{sym}.include?(v)
+        end
+      end
+    EOF
   end
 
   %i(minplayers maxplayers minplaytime maxplaytime playingtime).each do |stat|
@@ -135,22 +146,6 @@ class Game
     h.transform_keys(&:to_i)
   end
 
-  def best_with?(n)
-    if n.respond_to?(:each)
-      n.any? { |n2| best_with.include?(n2) }
-    else
-      best_with.include?(n)
-    end
-  end
-
-  def recommended_with?(n)
-    if n.respond_to?(:each)
-      n.any? { |n2| recommended_with.include?(n2) }
-    else
-      recommended_with.include?(n)
-    end
-  end
-
   def best_with
     suggested_numplayers.select do |k, v|
       v[:best] > v[:recommended] + v[:not_recommended]
@@ -162,10 +157,6 @@ class Game
       v[:not_recommended] > 0.8 * (v[:best] + v[:recommended])
     end.keys
   end
-
-  # def has_mechanic?(pattern)
-  #   @game.mechanics.map(&:downcase).grep(pattern).any?
-  # end
 
   def filler?
     playingtime <= 45 && weight < 2.5
@@ -194,6 +185,10 @@ class Game
   end
 
   def solo_only?
-    recommended_with == [1]
+    best_with == [1]
+  end
+
+  def two_player_only?
+    best_with == [2] && recommended_with.none? { |x| x >= 3 }
   end
 end

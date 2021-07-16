@@ -3,6 +3,4 @@ Rails.application.routes.draw do
   root to: "game#index"
 
   get "/random", to: "game#random"
-  get "/most_want_to_play", to: "game#most_want_to_play"
-  get "/already_know", to: "game#already_know"
 end

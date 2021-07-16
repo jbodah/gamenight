@@ -13,7 +13,7 @@ class GameProxy
   end
 
   def where(&blk)
-    GameProxy.new(blk.call @games)
+    GameProxy.new(@games.select(&blk))
   end
 
   def not(sym, *args)
