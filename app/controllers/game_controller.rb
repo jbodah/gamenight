@@ -42,17 +42,18 @@ class GameController < ApplicationController
     @collection_params = COLLECTION_PARAMS
     @flag_params = FLAG_PARAMS
     @games = $proxy.owned
+    @total = @games.count
     @games = @games.not(:solo_only) unless params["incl_solo"] == "1"
     @games = @games.not(:two_player_only) unless params["incl_2p"] == "1"
-    @total = @games.count
-    @mechanics_ranking = mechanics_ranking
-    @mechanics_played = mechanics_played
+    @mechanics = mechanics
+    @mechanics_ranking = @mechanics.map { |k, m| [k, m["ranking"]] }.to_h
+    @mechanics_played = @mechanics.map { |k, m| [k, m["plays"]] }.to_h
+    @mechanics_num_games = @mechanics.map { |k, m| [k, m["count"]] }.to_h
   end
 
   def index
     @games = apply_params(@games, params)
     @games = sort(@games, params)
-    @count = @games.count
     @games = limit(@games, params)
   end
 
@@ -61,7 +62,6 @@ class GameController < ApplicationController
       ids = Base64.decode64(params["permalink"]).split(',')
       games_by_id = @games.select { |g| g.id.in? ids }.index_by(&:id)
       @games = ids.map { |id| games_by_id[id] }
-      @count = @games.count
       render :index
     else
       samples = []
@@ -83,27 +83,36 @@ class GameController < ApplicationController
     end
   end
 
-  def mechanics_ranking
-    scores = Hash.new { [] }
-    @games.each do |game|
-      game.mechanics.each do |mechanic|
-        scores[mechanic] += game.player_ratings
-      end
-    end
-    scores.transform_values do |ratings|
-      size = [ratings.size, 1].max
-      ratings.sum*1.0 / size
-    end
+  def hidden_gems
+    @games = @games.select { |g| g.median_player_rating >= 7 }.sort_by { |g| -g.bgg_rank }
+    render :index
   end
 
-  def mechanics_played
-    scores = Hash.new { 0 }
+  def mechanics
+    mechanics = {}
     @games.each do |game|
       game.mechanics.each do |mechanic|
-        scores[mechanic] += game.num_raters
+        mechanics[mechanic] ||= {}
+
+        mechanics[mechanic]["ranking"] ||= []
+        mechanics[mechanic]["ranking"] += game.player_ratings
+
+        mechanics[mechanic]["count"] ||= []
+        mechanics[mechanic]["count"] << game.id
+
+        mechanics[mechanic]["plays"] ||= 0
+        mechanics[mechanic]["plays"] += game.num_raters
       end
     end
-    scores
+
+    mechanics.each do |k, m|
+      ratings = m["ranking"]
+      size = [ratings.size, 1].max
+      m["ranking"] = ratings.sum.to_f / size
+
+      m["count"] = m["count"].uniq.size
+    end
+    mechanics
   end
 
   def limit(games, params)

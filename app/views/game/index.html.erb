@@ -1,5 +1,5 @@
 <p>
-(Found <%= @count %> out of <%= @total %> games; filter the results with query parameters <a href="?sort=bgg_rank&best_with=[4,5]">example</a> <a href="#ref">reference</a>)
+(Found <%= @games.count %> out of <%= @total %> games; filter the results with query parameters <a href="?sort=bgg_rank&best_with=[4,5]">example</a> <a href="#ref">reference</a>)
 </p>
 
 <p>
@@ -11,17 +11,28 @@ Quick Links:
   <%= link_to %(Individual Rating), root_path(sort: "-num_raters,-median_player_rating") %>
   <%= link_to %(Group Favorites), root_path(num_raters: "gt1", sort: "-num_raters,-median_player_rating") %>
   <br/>
-  <%= link_to %(Best With 4), root_path(best_with: 4) %>
-  <%= link_to %(Recommended With 4), root_path(recommended_with: 4) %>
-  <br/>
-  <%= link_to %(Best With 5), root_path(best_with: 5) %>
-  <%= link_to %(Recommended With 5), root_path(recommended_with: 5) %>
-  <br/>
   <%= link_to %(Fillers), root_path(playingtime: "lte30", recommended_with: "[4,5]", sort: "random") %>
+  <%= link_to %(Meaty Fillers), root_path(playingtime: "lte60", recommended_with: "[4,5]", weight: "gt2", sort: "bgg_rank") %>
   <%= link_to %(Obscure), root_path(bgg_rank: "gte500", sort: "-median_player_rating,-want_to_players") %>
+  <%= link_to %(Hidden Gems), hidden_gems_path %>
   <%= link_to %(Unplayed), root_path(num_raters: 0, recommended_with: "[4,5]", sort: "bgg_rank,-want_to_players") %>
+  <br/>
   <%= link_to %(BGG Rank), root_path(sort: "bgg_rank") %>
   <%= link_to %(BGG Best With 4 Or 5), root_path(best_with: "[4,5]", sort: "bgg_rank") %>
+  <br/>
+  Best With:
+  <%= link_to %(1), root_path(best_with: 1, incl_solo: 1) %>
+  <%= link_to %(2), root_path(best_with: 2, incl_2p: 1) %>
+  <% [3, 4, 5, 6].each do |n| %>
+    <%= link_to n, root_path(best_with: n) %>
+  <% end %>
+  <br/>
+  Recommended With:
+  <%= link_to %(1), root_path(recommended_with: 1, incl_solo: 1) %>
+  <%= link_to %(2), root_path(recommended_with: 2, incl_2p: 1) %>
+  <% [3, 4, 5, 6].each do |n| %>
+    <%= link_to n, root_path(recommended_with: n) %>
+  <% end %>
 </p>
 
 <table class="table">
@@ -105,10 +116,30 @@ Quick Links:
       </tr>
     </thead>
     <tbody>
-      <% @mechanics_played.sort_by { |_, v| v }.each do |mechanic, plays| %>
+      <% @mechanics_played.sort_by { |_, v| -v }.each do |mechanic, plays| %>
         <tr>
           <td><%= link_to mechanic, root_path(mechanics: "[#{mechanic}]", sort: "-median_player_rating,-want_to_players") %></td>
           <td><%= plays %></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+<div>
+  <h3>Mechanics Num Games</h3>
+  <table class="table">
+    <thead>
+      <tr>
+        <th scope="col">Mechanic</th>
+        <th scope="col">Num Games</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @mechanics_num_games.sort_by { |_, v| -v }.each do |mechanic, num_games| %>
+        <tr>
+          <td><%= link_to mechanic, root_path(mechanics: "[#{mechanic}]", sort: "-median_player_rating,-want_to_players") %></td>
+          <td><%= num_games %></td>
         </tr>
       <% end %>
     </tbody>

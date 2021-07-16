@@ -106,7 +106,7 @@ class Game
   end
 
   def mechanics
-    @game.mechanics.map(&:downcase)
+    @game.mechanics.map(&:downcase).map { |m| m.sub(/\s*\/\s*/, " and ") }
   end
 
   %i(
