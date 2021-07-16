@@ -32,10 +32,18 @@ class GameController < ApplicationController
     want_to_players
   )
 
+  FLAG_PARAMS = %w(
+    incl_solo
+    incl_2p
+  )
+
   before_action do
     @simple_params = SIMPLE_PARAMS
     @collection_params = COLLECTION_PARAMS
-    @games = $proxy.owned.not(:solo_only).not(:two_player_only)
+    @flag_params = FLAG_PARAMS
+    @games = $proxy.owned
+    @games = @games.not(:solo_only) unless params["incl_solo"] == "1"
+    @games = @games.not(:two_player_only) unless params["incl_2p"] == "1"
     @total = @games.count
     @mechanics_ranking = mechanics_ranking
     @mechanics_played = mechanics_played
