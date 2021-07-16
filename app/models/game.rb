@@ -35,7 +35,7 @@ class Game
   end
 
   def want_to_players
-    @ownerships.select(&:wanttoplay).map(&:owner).uniq
+    (likers + @ownerships.select(&:wanttoplay).map(&:owner)).uniq
   end
 
   {like: ">= 7", love: ">= 8", dislike: "<= 6", hate: "<= 5"}.each do |sym, clause|
