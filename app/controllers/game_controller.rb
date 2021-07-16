@@ -30,6 +30,7 @@ class GameController < ApplicationController
     owners
     raters
     want_to_players
+    want_to_learners
   )
 
   FLAG_PARAMS = %w(

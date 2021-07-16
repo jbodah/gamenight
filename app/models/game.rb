@@ -26,16 +26,24 @@ class Game
     EOF
   end
 
-  def want_to_play?
-    want_to_players.any?
-  end
+  %i(want_to_play want_to_learn).each do |sym|
+    class_eval <<~EOF
+      def #{sym}?
+        #{sym}ers.any?
+      end
 
-  def want_to_play_by?(user)
-    want_to_players.any? { |u| u == user }
+      def #{sym}_by?(user)
+        #{sym}ers.any? { |u| u == user }
+      end
+    EOF
   end
 
   def want_to_players
-    (likers + @ownerships.select(&:wanttoplay).map(&:owner)).uniq
+    (likers + want_to_learners).uniq
+  end
+
+  def want_to_learners
+    (@ownerships.select(&:wanttoplay).map(&:owner) - raters).uniq
   end
 
   {like: ">= 7", love: ">= 8", dislike: "<= 6", hate: "<= 5"}.each do |sym, clause|

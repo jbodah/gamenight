@@ -7,6 +7,8 @@ Quick Links:
   <%= link_to "Random", random_path %>
   <%= link_to %(Want to Play), root_path(num_want_to_players: "gt0", sort: "-want_to_players") %>
   <br/>
+  <%= link_to %(Want to Play & Best With 4 Or 5), root_path(num_want_to_players: "gt0", best_with: "[4,5]", sort: "-want_to_players") %>
+  <br/>
   <%= link_to %(No Teach), root_path(num_raters: "gt0", recommended_with: "[4,5]", sort: "-median_player_rating,-num_raters") %>
   <%= link_to %(Individual Rating), root_path(sort: "-num_raters,-median_player_rating") %>
   <%= link_to %(Group Favorites), root_path(num_raters: "gt1", sort: "-num_raters,-median_player_rating") %>
