@@ -389,7 +389,7 @@ def load_games
 end
 
 users = %w(hiimjosh iadena yourwhiteshadow Falcifer666 adamabsurd)
-
+download_collections(users)
 collections = load_collections
 collections = collections.map do |owner, xml|
   collection = Bgg::Collection.new(owner)
@@ -399,7 +399,7 @@ collections = collections.map do |owner, xml|
   collection.games = Bgg::Parser.parse(doc.children[0])
   collection
 end
-
+download_games(collections)
 ownerships_by_game_id = {}
 collections.each do |c|
   c.games.each do |g|
