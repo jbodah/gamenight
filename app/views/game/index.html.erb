@@ -50,6 +50,7 @@ Quick Links:
       <th scope="col">Recommended With</th>
       <th scope="col">Best With</th>
       <th scope="col">Weight</th>
+      <th scope="col">Playtime</th>
     </tr>
   </thead>
   <tbody>
@@ -77,6 +78,7 @@ Quick Links:
         <td><%= game.recommended_with %></td>
         <td><%= game.best_with %></td>
         <td><%= game.weight.round(2) %></td>
+        <td><%= game.playingtime %></td>
       </tr>
     <% end %>
   </tbody>

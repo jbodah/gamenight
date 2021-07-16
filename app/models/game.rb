@@ -94,7 +94,17 @@ class Game
   end
 
   def avg_player_rating
-    (player_ratings.sum / (player_ratings.size * 1.0)).round(1)
+    return -1 if player_ratings.none?
+
+    (player_ratings.sum / (player_ratings.size.to_f)).round(1)
+  end
+
+  def min_player_rating
+    player_ratings.min
+  end
+
+  def max_player_rating
+    player_ratings.max
   end
 
   def player_ratings

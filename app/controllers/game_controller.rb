@@ -5,7 +5,9 @@ class GameController < ApplicationController
     id
     maxplayers
     maxplaytime
+    max_player_rating
     median_player_rating
+    min_player_rating
     minplayers
     minplaytime
     name
@@ -21,7 +23,6 @@ class GameController < ApplicationController
 
   COLLECTION_PARAMS = %w(
     best_with
-    recommended_with
     dislikers
     haters
     likers
@@ -29,8 +30,9 @@ class GameController < ApplicationController
     mechanics
     owners
     raters
-    want_to_players
+    recommended_with
     want_to_learners
+    want_to_players
   )
 
   FLAG_PARAMS = %w(
