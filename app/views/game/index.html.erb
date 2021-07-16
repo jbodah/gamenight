@@ -5,15 +5,23 @@
 <p>
 Quick Links:
   <%= link_to "Random", random_path %>
-  <%= link_to %(Most "Want to Plays"), root_path(num_want_to_players: "gt0", sort: "-want_to_players") %>
-  <%= link_to %(Games We Already Know), root_path(num_raters: "gt0", recommended_with: "[4,5]", sort: "-median_player_rating,-num_raters") %>
+  <%= link_to %(Want to Play), root_path(num_want_to_players: "gt0", sort: "-want_to_players") %>
+  <br/>
+  <%= link_to %(No Teach), root_path(num_raters: "gt0", recommended_with: "[4,5]", sort: "-median_player_rating,-num_raters") %>
+  <%= link_to %(Individual Rating), root_path(sort: "-num_raters,-median_player_rating") %>
+  <%= link_to %(Group Favorites), root_path(num_raters: "gt1", sort: "-num_raters,-median_player_rating") %>
+  <br/>
   <%= link_to %(Best With 4), root_path(best_with: 4) %>
-  <%= link_to %(Best With 5), root_path(best_with: 5) %>
   <%= link_to %(Recommended With 4), root_path(recommended_with: 4) %>
+  <br/>
+  <%= link_to %(Best With 5), root_path(best_with: 5) %>
   <%= link_to %(Recommended With 5), root_path(recommended_with: 5) %>
+  <br/>
   <%= link_to %(Fillers), root_path(playingtime: "lte30", recommended_with: "[4,5]", sort: "random") %>
   <%= link_to %(Obscure), root_path(bgg_rank: "gte500", sort: "-median_player_rating,-want_to_players") %>
-  <%= link_to %(Unplayed), root_path(num_raters: 0, recommended_with: "[4,5]", sort: "-want_to_players") %>
+  <%= link_to %(Unplayed), root_path(num_raters: 0, recommended_with: "[4,5]", sort: "bgg_rank,-want_to_players") %>
+  <%= link_to %(BGG Rank), root_path(sort: "bgg_rank") %>
+  <%= link_to %(BGG Best With 4 Or 5), root_path(best_with: "[4,5]", sort: "bgg_rank") %>
 </p>
 
 <table class="table">
