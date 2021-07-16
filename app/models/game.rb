@@ -39,11 +39,11 @@ class Game
   end
 
   def want_to_players
-    ((owners - raters) + likers + want_to_learners).uniq
+    (likers + want_to_learners).uniq
   end
 
   def want_to_learners
-    (@ownerships.select(&:wanttoplay).map(&:owner) - raters).uniq
+    (owners + @ownerships.select(&:wanttoplay).map(&:owner) - raters).uniq
   end
 
   {like: ">= 7", love: ">= 8", dislike: "<= 6", hate: "<= 5"}.each do |sym, clause|
