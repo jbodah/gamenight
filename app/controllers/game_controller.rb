@@ -68,7 +68,7 @@ class GameController < ApplicationController
       render :index
     else
       samples = []
-      users = %w(hiimjosh iadena yourwhiteshadow Falcifer666 adamabsurd)
+      YAML.load_file('config/bgg.yaml').fetch("users")
       users = (users * 2).shuffle
       [4, 5].shuffle.each do |n|
         user = users.shift

@@ -4,6 +4,7 @@ require "net/http"
 require "nokogiri"
 require "ostruct"
 require "logger"
+require "yaml"
 
 $stderr.sync = true
 
@@ -388,7 +389,7 @@ def load_games
   Marshal.load(File.read('games.out'))
 end
 
-users = %w(hiimjosh iadena yourwhiteshadow Falcifer666 adamabsurd)
+users = YAML.load_file('config/bgg.yaml').fetch("users")
 download_collections(users)
 collections = load_collections
 collections = collections.map do |owner, xml|
