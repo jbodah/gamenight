@@ -1,0 +1,6 @@
+#! /usr/bin/env sh
+set -xe
+ruby script.rb
+git add *.out
+git commit -m 'update collections'
+git push heroku master
