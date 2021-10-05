@@ -124,7 +124,7 @@ class GameController < ApplicationController
   end
 
   def sort(games, params)
-    return games.stable_sort_by { |x| -x.num_raters }.stable_sort_by { |x| -x.median_player_rating } unless params["sort"]
+    return games.stable_sort_by { |x| -x.raters.size }.stable_sort_by { |x| -x.want_to_players.size }.stable_sort_by { |x| -x.median_player_rating } unless params["sort"]
     return games.to_a.shuffle if params["sort"] == "random"
 
     acc = games
