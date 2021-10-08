@@ -130,6 +130,7 @@ class Game
   %i(
     best_with
     recommended_with
+    plays_with
     dislikers
     haters
     likers
@@ -174,6 +175,10 @@ class Game
     suggested_numplayers.reject do |k, v|
       v[:not_recommended] > 0.8 * (v[:best] + v[:recommended])
     end.keys
+  end
+
+  def plays_with
+    (minplayers..maxplayers).to_a
   end
 
   def filler?

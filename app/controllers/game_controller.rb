@@ -29,6 +29,7 @@ class GameController < ApplicationController
     lovers
     mechanics
     owners
+    plays_with
     raters
     recommended_with
     want_to_learners
