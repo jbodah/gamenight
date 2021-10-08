@@ -422,7 +422,7 @@ loaded_games.each do |xml|
     games << Game.new(game2, ownerships_by_game_id.fetch(game2.id))
   end
 end
-games.reject! { |g| g.type == "boardgameexpansion" }
+# games.reject! { |g| g.type == "boardgameexpansion" }
 
 filter = GameProxy.new(games).owned
 File.write('filter.out', Marshal.dump(filter))
