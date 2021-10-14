@@ -167,13 +167,13 @@ class Game
 
   def best_with
     suggested_numplayers.select do |k, v|
-      v[:best] > v[:recommended] + v[:not_recommended]
+      v[:best] > v[:recommended] && v[:best] > v[:not_recommended]
     end.keys
   end
 
   def recommended_with
-    suggested_numplayers.reject do |k, v|
-      v[:not_recommended] > 0.8 * (v[:best] + v[:recommended])
+    suggested_numplayers.select do |k, v|
+      (v[:best] + v[:recommended]) > v[:not_recommended]
     end.keys
   end
 
