@@ -333,8 +333,8 @@ end
 
 def retry_errors
   backoff = Enumerator.new do |y|
-    y.yield 1
-    n = 2
+    y.yield 2
+    n = 4
     loop do
       y.yield n
       n = [n**2, 20].min
