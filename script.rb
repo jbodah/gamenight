@@ -337,7 +337,7 @@ def retry_errors
     n = 4
     loop do
       y.yield n
-      n = [n**2, 20].min
+      n = [n*2, 20].min
     end
   end
 
